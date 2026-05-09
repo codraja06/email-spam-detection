@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - MailShield</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css', v='simple') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">MailShield</div>
+        <nav class="nav-links">
+            <a href="/">Scanner</a>
+            <a href="/admin" class="active">Analytics</a>
+        </nav>
+    </header>
+
+    <main class="simple-container">
+        <div class="admin-header">
+            <h1>System Analytics</h1>
+            <p class="subtitle">Overview of scan performance and history.</p>
+        </div>
+
+        <div class="minimal-stats">
+            <div class="stat-item">
+                <div class="stat-label">Total Scans</div>
+                <div class="stat-value" id="total-scans-count">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Spam Detected</div>
+                <div class="stat-value text-danger" id="spam-count">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Safe Emails</div>
+                <div class="stat-value text-success" id="safe-count">0</div>
+            </div>
+        </div>
+
+        <div class="minimal-charts">
+            <div class="chart-wrapper">
+                <h3>Detection Ratio</h3>
+                <canvas id="ratioChart"></canvas>
+            </div>
+            <div class="chart-wrapper">
+                <h3>7-Day Activity</h3>
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

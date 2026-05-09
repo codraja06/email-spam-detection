@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codwolf MailShield - Spam Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <nav class="navbar glass-panel">
+        <div class="logo">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>Codwolf MailShield</span>
+        </div>
+        <div class="nav-links">
+            <a href="#" id="nav-scanner" class="active"><i class="fa-solid fa-house"></i> Scanner</a>
+            <a href="#" id="nav-analytics"><i class="fa-solid fa-chart-pie"></i> Analytics</a>
+            <button id="theme-toggle" class="icon-btn" title="Toggle Theme">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- SCANNER VIEW -->
+        <div id="scanner-view">
+            <div class="content-wrapper">
+                <!-- Left Side: Input Section -->
+                <section class="input-section glass-panel fade-in">
+                    <h2><i class="fa-solid fa-envelope-open-text"></i> Email Analyzer</h2>
+                    <p class="subtitle">Detect spam and malicious content</p>
+
+                    <div class="form-group">
+                        <label for="email-subject">Subject</label>
+                        <input type="text" id="email-subject" placeholder="Enter email subject...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email-content">Content</label>
+                        <div class="textarea-wrapper">
+                            <textarea id="email-content" rows="8" placeholder="Paste email content here..."></textarea>
+                        </div>
+                    </div>
+
+                    <div id="drop-zone" class="drop-zone">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <p>Drag & Drop email text file here</p>
+                        <span>or click to browse</span>
+                        <input type="file" id="file-input" accept=".txt" hidden>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="analyze-btn" class="btn btn-primary">
+                            <i class="fa-solid fa-magnifying-glass"></i> Analyze Email
+                        </button>
+                        <button id="clear-btn" class="btn btn-secondary">
+                            <i class="fa-solid fa-eraser"></i> Clear
+                        </button>
+                        <button id="sample-btn" class="btn btn-outline">
+                            <i class="fa-solid fa-vial"></i> Sample Data
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Right Side: Results & History Section -->
+                <section class="results-section fade-in delay-1">
+                    <!-- Results Card (Hidden initially) -->
+                    <div id="result-card" class="glass-panel result-card hidden">
+                        <h3>Analysis Result</h3>
+                        
+                        <div class="result-header">
+                            <div id="prediction-badge" class="badge badge-safe">
+                                <i class="fa-solid fa-check-circle"></i> Not Spam
+                            </div>
+                        </div>
+
+                        <div class="meter-container">
+                            <div class="meter-labels">
+                                <span>Safe</span>
+                                <span>Spam Probability</span>
+                                <span>Spam</span>
+                            </div>
+                            <div class="meter-track">
+                                <div id="probability-fill" class="meter-fill" style="width: 0%;"></div>
+                            </div>
+                            <div id="confidence-text" class="confidence-text">Confidence: 0%</div>
+                        </div>
+
+                        <div id="keywords-container" class="keywords-container hidden">
+                            <h4>Suspicious Keywords Found:</h4>
+                            <div id="keywords-list" class="keywords-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- History Card -->
+                    <div class="glass-panel history-card">
+                        <div class="history-header">
+                            <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Scans</h3>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button id="clear-history-btn" class="icon-btn" title="Clear History" style="color: var(--danger-color);">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                                <button id="export-btn" class="icon-btn" title="Export as CSV">
+                                    <i class="fa-solid fa-file-csv"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table id="history-table">
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Result</th>
+                                        <th>Confidence</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-body">
+                                    <tr class="empty-row"><td colspan="3">No recent scans.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- ANALYTICS VIEW -->
+        <div id="analytics-view" class="hidden">
+            <div class="admin-wrapper fade-in">
+                <h2><i class="fa-solid fa-chart-line"></i> Detection Analytics</h2>
+                <p class="subtitle">System performance and scan statistics</p>
+
+                <div class="stats-cards">
+                    <div class="stat-card glass-panel">
+                        <div class="stat-icon primary">
+                            <i class="fa-solid fa-envelopes-bulk"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Total Scans</h3>
+                            <p id="total-scans-count">0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card glass-panel">
+                        <div class="stat-icon red">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Spam Detected</h3>
+                            <p id="spam-count">0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card glass-panel">
+                        <div class="stat-icon green">
+                            <i class="fa-solid fa-shield-check"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>Safe Emails</h3>
+                            <p id="safe-count">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-box glass-panel">
+                        <h3>Spam vs Safe Ratio</h3>
+                        <canvas id="ratioChart"></canvas>
+                    </div>
+                    <div class="chart-box glass-panel">
+                        <h3>Scan Activity (Last 7 Days)</h3>
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>Analyzing...</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        // Tab switching logic for Single Page App
+        document.getElementById('nav-scanner').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('scanner-view').classList.remove('hidden');
+            document.getElementById('analytics-view').classList.add('hidden');
+            document.getElementById('nav-scanner').classList.add('active');
+            document.getElementById('nav-analytics').classList.remove('active');
+        });
+        document.getElementById('nav-analytics').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('analytics-view').classList.remove('hidden');
+            document.getElementById('scanner-view').classList.add('hidden');
+            document.getElementById('nav-analytics').classList.add('active');
+            document.getElementById('nav-scanner').classList.remove('active');
+            // Dispatch a resize event to ensure charts render correctly when unhidden
+            window.dispatchEvent(new Event('resize'));
+            if (window.initCharts) window.initCharts();
+        });
+    </script>
+</body>
+</html>
